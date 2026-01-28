@@ -36,44 +36,74 @@
 async function loadMessages() {
   const room = document.getElementById("room").value.trim();
   const token = document.getElementById("token").value.trim();
+  const box = document.getElementById("messages");
 
-  const BACKEND = "https://dd9ea5a5cf59.ngrok-free.app"; // seu ngrok atual
+  if (!room || !token) {
+    box.innerHTML = "<p>Preencha sala e token.</p>";
+    return;
+  }
+
+  const BACKEND = "https://dd9ea5a5cf59.ngrok-free.app";
   const url = `${BACKEND}/api/admin/messages?room=${encodeURIComponent(room)}&token=${encodeURIComponent(token)}`;
 
-  console.log("Chamando:", url);
+  box.innerHTML = `<p>🔎 Chamando: <code>${url}</code></p>`;
 
-  let res;
   try {
-    res = await fetch(url);
+    const res = await fetch(url, { method: "GET" });
+
+    const contentType = res.headers.get("content-type") || "";
+    const raw = await res.text(); // lê sempre como texto primeiro
+
+    if (!res.ok) {
+      box.innerHTML = `
+        <p>❌ Erro <b>${res.status}</b></p>
+        <pre style="white-space:pre-wrap;background:#111827;padding:12px;border-radius:8px;">${escapeHtml(raw)}</pre>
+        <p>Dica: gere um token novo em <code>${BACKEND}/admin/create-token</code></p>
+      `;
+      return;
+    }
+
+    // Se chegou aqui, deve ser JSON
+    if (!contentType.includes("application/json")) {
+      box.innerHTML = `
+        <p>⚠️ Resposta não veio como JSON (content-type: ${escapeHtml(contentType)})</p>
+        <pre style="white-space:pre-wrap;background:#111827;padding:12px;border-radius:8px;">${escapeHtml(raw)}</pre>
+      `;
+      return;
+    }
+
+    const data = JSON.parse(raw);
+
+    if (!data.length) {
+      box.innerHTML = "<p>✅ Autorizado, mas não há mensagens nessa sala.</p>";
+      return;
+    }
+
+    box.innerHTML = "";
+    data.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "msg";
+      div.innerHTML = `<b>${escapeHtml(m.user)}</b>: ${escapeHtml(m.text)}`;
+      box.appendChild(div);
+    });
+
   } catch (e) {
-    alert("Falha de rede. O backend está online? (ngrok rodando?)");
-    return;
+    box.innerHTML = `<p>❌ Falha no fetch: ${escapeHtml(e.message)}</p>
+                     <p>Isso costuma ser CORS ou backend offline.</p>`;
   }
+}
 
-  // ✅ se deu erro, lê como TEXTO (pode ser HTML) e mostra
-  if (!res.ok) {
-    const text = await res.text();
-    alert(`Erro ${res.status}:\n${text}\n\nDica: gere um token novo (ele expira).`);
-    return;
-  }
-
-  // ✅ só aqui fazemos json()
-  const data = await res.json();
-
-  const box = document.getElementById("messages");
-  box.innerHTML = "";
-
-  data.forEach(m => {
-    const div = document.createElement("div");
-    div.className = "msg";
-    div.innerHTML = `<b>${m.user}</b>: ${m.text}`;
-    box.appendChild(div);
-  });
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (m) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  }[m]));
 }
 </script>
 
+
 </body>
 </html>
+
 
 
 
