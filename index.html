@@ -25,6 +25,7 @@
 <body>
 
 <h1>Mensagens Autorizadas 🔐</h1>
+<input id="backend" placeholder="Link do backend (ngrok)" value="https://">
 
 <input id="room" placeholder="Sala">
 <input id="token" placeholder="Token temporário">
@@ -34,17 +35,19 @@
 
 <script>
 async function loadMessages() {
+  const backend = document.getElementById("backend").value.trim();
   const room = document.getElementById("room").value.trim();
   const token = document.getElementById("token").value.trim();
   const box = document.getElementById("messages");
 
-  if (!room || !token) {
-    box.innerHTML = "<p>Preencha sala e token.</p>";
+  if (!backend || !room || !token) {
+    box.innerHTML = "<p>Preencha backend, sala e token.</p>";
     return;
   }
 
-  const BACKEND = "https://4534810b620c.ngrok-free.app";
-  const url = `${BACKEND}/api/admin/messages?room=${encodeURIComponent(room)}&token=${encodeURIComponent(token)}`;
+  // remove barra final se existir
+  const cleanBackend = backend.replace(/\/+$/, "");
+  const url = `${cleanBackend}/api/admin/messages?room=${encodeURIComponent(room)}&token=${encodeURIComponent(token)}`;
 
   box.innerHTML = `<p>🔎 Chamando: <code>${url}</code></p>`;
 
@@ -55,7 +58,6 @@ async function loadMessages() {
         "ngrok-skip-browser-warning": "true"
       }
     });
-
 
     const contentType = res.headers.get("content-type") || "";
     const raw = await res.text(); // lê sempre como texto primeiro
@@ -109,6 +111,7 @@ function escapeHtml(str) {
 
 </body>
 </html>
+
 
 
 
