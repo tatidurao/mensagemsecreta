@@ -43,7 +43,7 @@ async function loadMessages() {
     return;
   }
 
-  const BACKEND = "https://dd9ea5a5cf59.ngrok-free.app";
+  const BACKEND = "https://4534810b620c.ngrok-free.app";
   const url = `${BACKEND}/api/admin/messages?room=${encodeURIComponent(room)}&token=${encodeURIComponent(token)}`;
 
   box.innerHTML = `<p>🔎 Chamando: <code>${url}</code></p>`;
@@ -109,6 +109,7 @@ function escapeHtml(str) {
 
 </body>
 </html>
+
 
 
 
