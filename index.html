@@ -34,20 +34,32 @@
 
 <script>
 async function loadMessages() {
-  const room = document.getElementById("room").value;
-  const token = document.getElementById("token").value;
-  const BACKEND =  "https://dd9ea5a5cf59.ngrok-free.app"
+  const room = document.getElementById("room").value.trim();
+  const token = document.getElementById("token").value.trim();
 
-  const url = `${BACKEND}/api/admin/messages?room=${room}&token=${token}`;
+  const BACKEND = "https://dd9ea5a5cf59.ngrok-free.app"; // seu ngrok atual
+  const url = `${BACKEND}/api/admin/messages?room=${encodeURIComponent(room)}&token=${encodeURIComponent(token)}`;
+
   console.log("Chamando:", url);
 
-  const res = await fetch(url);
-  if (!res.ok) {
-    alert("Acesso negado ou token expirado");
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (e) {
+    alert("Falha de rede. O backend está online? (ngrok rodando?)");
     return;
   }
 
+  // ✅ se deu erro, lê como TEXTO (pode ser HTML) e mostra
+  if (!res.ok) {
+    const text = await res.text();
+    alert(`Erro ${res.status}:\n${text}\n\nDica: gere um token novo (ele expira).`);
+    return;
+  }
+
+  // ✅ só aqui fazemos json()
   const data = await res.json();
+
   const box = document.getElementById("messages");
   box.innerHTML = "";
 
@@ -62,6 +74,7 @@ async function loadMessages() {
 
 </body>
 </html>
+
 
 
 
