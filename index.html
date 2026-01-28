@@ -39,6 +39,7 @@ async function loadMessages() {
   const BACKEND =  "https://dd9ea5a5cf59.ngrok-free.app"
 
   const url = `${BACKEND}/api/admin/messages?room=${room}&token=${token}`;
+  console.log("Chamando:", url);
 
   const res = await fetch(url);
   if (!res.ok) {
@@ -61,5 +62,6 @@ async function loadMessages() {
 
 </body>
 </html>
+
 
 
