@@ -36,8 +36,9 @@
 async function loadMessages() {
   const room = document.getElementById("room").value;
   const token = document.getElementById("token").value;
+  const BACKEND =  https://dd9ea5a5cf59.ngrok-free.app
 
-  const url = `https://SEU_BACKEND_URL/api/admin/messages?room=${room}&token=${token}`;
+  const url = `${BACKEND}/api/admin/messages?room=${room}&token=${token}`;
 
   const res = await fetch(url);
   if (!res.ok) {
@@ -60,3 +61,4 @@ async function loadMessages() {
 
 </body>
 </html>
+
